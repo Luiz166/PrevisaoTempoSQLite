@@ -15,8 +15,8 @@ public partial class MainPage : ContentPage
     string? county;
 
     public MainPage()
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
     }
 
     private async void Button_Clicked(object sender, EventArgs e)
@@ -56,7 +56,7 @@ public partial class MainPage : ContentPage
 
     }
 
-    private async Task<string> GetGeocodeReverseData(string latitude,string longitude)
+    private async Task<string> GetGeocodeReverseData(string latitude, string longitude)
     {
         string apiKey = App.apiKey;
         string url = $"https://api.geoapify.com/v1/geocode/reverse?lat={latitude}&lon={longitude}&apiKey={apiKey}";
@@ -74,82 +74,101 @@ public partial class MainPage : ContentPage
             county = jsonObj["features"]?[0]?["properties"]?["county"]?.ToString();
 
             cidade = city;
-       
+
         }
-     
+
         return $"{cidade}, {county}";
 
     }
 
     private async void Button_Clicked_1(object sender, EventArgs e)
     {
-        string latitudeText = input_lat.Text.Replace(",", ".");
-        string longitudeText = input_long.Text.Replace(",", ".");
+        if(!string.IsNullOrEmpty(input_lat.Text) || !string.IsNullOrEmpty(input_long.Text))
+        {
+            string latitudeText = input_lat.Text.Replace(",", ".");
+            string longitudeText = input_long.Text.Replace(",", ".");
 
-        Debug.WriteLine(latitudeText, longitudeText);
+            Debug.WriteLine(latitudeText, longitudeText);
 
-        double latitude = double.Parse(latitudeText, CultureInfo.InvariantCulture);
-        double longitude = double.Parse(longitudeText, CultureInfo.InvariantCulture);
+            double latitude = double.Parse(latitudeText, CultureInfo.InvariantCulture);
+            double longitude = double.Parse(longitudeText, CultureInfo.InvariantCulture);
 
-        Debug.WriteLine($"Lat: {latitude} Long: {longitude}");
+            Debug.WriteLine($"Lat: {latitude} Long: {longitude}");
 
-        lbl_Weather.Text = await GetGeocodeReverseData(latitudeText, longitudeText);
+            lbl_Weather.Text = await GetGeocodeReverseData(latitudeText, longitudeText);
+        }
+        else
+        {
+            DisplayAlert("Erro: ", "Preencha todos os campos", "Ok");
+        }
     }
 
     private async void Button_Clicked_2(object sender, EventArgs e)
     {
-        try
+        string lat = input_lat.Text;
+        string longi = input_long.Text;
+        
+
+        if (!string.IsNullOrEmpty(lat) || !string.IsNullOrEmpty(longi))
         {
-            Debug.WriteLine($"Cidade: {cidade}");
-            if (!String.IsNullOrEmpty(cidade))
+            try
             {
-                Debug.WriteLine("CLICADO");
-                APImodel? previsao = await WeatherAPI.GetPrevisaoDoTempo(cidade);
-
-                string dados_previsao = "";
-
-                if (previsao != null)
+                Debug.WriteLine($"Cidade: {cidade}");
+                if (!String.IsNullOrEmpty(cidade))
                 {
-                    dados_previsao = $"Humidade: {previsao.Humidity} \n" +
-                        $"Nascer do Sol: {previsao.Sunrise} \n" +
-                        $"Pôr do Sol: {previsao.Sunset} \n" +
-                        $"Temperatura: {previsao.Temperature} \n" +
-                        $"Visibilidade: {previsao.Visibility} \n" +
-                        $"Vento: {previsao.Wind} \n" +
-                        $"Previsão: {previsao.Weather} \n" +
-                        $"Descrição: {previsao.WeatherDescription}";
-                    try
+                    Debug.WriteLine("CLICADO");
+                    APImodel? previsao = await WeatherAPI.GetPrevisaoDoTempo(cidade);
+
+                    string dados_previsao = "";
+
+                    if (previsao != null)
                     {
-                        Weather weather = new Weather
+                        dados_previsao = $"Humidade: {previsao.Humidity} \n" +
+                            $"Nascer do Sol: {previsao.Sunrise} \n" +
+                            $"Pôr do Sol: {previsao.Sunset} \n" +
+                            $"Temperatura: {previsao.Temperature} \n" +
+                            $"Visibilidade: {previsao.Visibility} \n" +
+                            $"Vento: {previsao.Wind} \n" +
+                            $"Previsão: {previsao.Weather} \n" +
+                            $"Descrição: {previsao.WeatherDescription}";
+                        try
                         {
-                            Latitude = Convert.ToDouble(input_lat.Text),
-                            Longitude = Convert.ToDouble(input_long.Text),
-                            City = cidade,
-                            County = county,
-                            Temperature = previsao.Temperature
-                        };
+                            Weather weather = new Weather
+                            {
+                                Latitude = Convert.ToDouble(input_lat.Text),
+                                Longitude = Convert.ToDouble(input_long.Text),
+                                City = cidade,
+                                County = county,
+                                Temperature = previsao.Temperature
+                            };
 
-                        await App.Database.Insert(weather);
-                        DisplayAlert("Sucesso", "Previsão registrada", "Ok");
-                    } catch (Exception ex) {
-                        DisplayAlert("Erro ao registrar previsão: ", ex.Message, "Ok");
+                            await App.Database.Insert(weather);
+                            DisplayAlert("Sucesso", "Previsão registrada", "Ok");
+                        } catch (Exception ex) {
+                            DisplayAlert("Erro ao registrar previsão: ", ex.Message, "Ok");
+                        }
                     }
-                }
-                else
-                {
-                    dados_previsao = $"Sem dados, previsão nula";
-                }
-                Debug.WriteLine("-------------------------------------------");
-                Debug.WriteLine(dados_previsao);
-                Debug.WriteLine("-------------------------------------------");
+                    else
+                    {
+                        dados_previsao = $"Sem dados, previsão nula";
+                    }
+                    Debug.WriteLine("-------------------------------------------");
+                    Debug.WriteLine(dados_previsao);
+                    Debug.WriteLine("-------------------------------------------");
 
-                lbl_Weather.Text = dados_previsao;
+                    lbl_Weather.Text = dados_previsao;
 
+                }
             }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Erro: ", ex.Message, "Ok");
+            }
+
         }
-        catch (Exception ex)
+        else
         {
-            await DisplayAlert("Erro: ", ex.Message, "Ok");
+            DisplayAlert("Erro: ", "Preencha todos os campos", "Ok");
         }
     }
 
