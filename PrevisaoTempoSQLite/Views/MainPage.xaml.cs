@@ -118,6 +118,22 @@ public partial class MainPage : ContentPage
                         $"Vento: {previsao.Wind} \n" +
                         $"Previsão: {previsao.Weather} \n" +
                         $"Descrição: {previsao.WeatherDescription}";
+                    try
+                    {
+                        Weather weather = new Weather
+                        {
+                            Latitude = Convert.ToDouble(input_lat.Text),
+                            Longitude = Convert.ToDouble(input_long.Text),
+                            City = cidade,
+                            County = county,
+                            Temperature = previsao.Temperature
+                        };
+
+                        await App.Database.Insert(weather);
+                        DisplayAlert("Sucesso", "Previsão registrada", "Ok");
+                    } catch (Exception ex) {
+                        DisplayAlert("Erro ao registrar previsão: ", ex.Message, "Ok");
+                    }
                 }
                 else
                 {
@@ -134,6 +150,17 @@ public partial class MainPage : ContentPage
         catch (Exception ex)
         {
             await DisplayAlert("Erro: ", ex.Message, "Ok");
+        }
+    }
+
+    private async void Button_Clicked_3(object sender, EventArgs e)
+    {
+        try
+        {
+            Navigation.PushAsync(new Views.HistoryPage());
+        }
+        catch (Exception ex) {
+            DisplayAlert("Erro: ", ex.Message, "Ok");
         }
     }
 }
