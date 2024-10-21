@@ -23,25 +23,6 @@ namespace PrevisaoTempoSQLite.Helpers
             return conn.InsertAsync(weather);
         }
 
-        public Task<List<Weather>> Update(Weather weather) {
-            string sql = "UPDATE  Weather " +
-                "SET Latitude=?, " +
-                "Longitude=?, " +
-                "City=?, " +
-                "County=?, " +
-                "Temperature=? WHERE Id=?";
-
-
-            return conn.QueryAsync<Weather>(sql, 
-                weather.Latitude,
-                weather.Longitude,
-                weather.City,
-                weather.County,
-                weather.Temperature,
-                weather.Id);
-
-        }
-
         public Task<int> Delete(int id) {
             return conn.Table<Weather>().DeleteAsync(i => i.Id == id);
         }
