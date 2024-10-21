@@ -20,6 +20,8 @@
                     BackgroundColor="#4CAF50" TextColor="White"/>
                 <Button Text="Obter PlaceMark" WidthRequest="150" FontAttributes="Bold" Clicked="Button_Clicked_1" 
                     BackgroundColor="#03A9F4" TextColor="White"/>
+                <Button Text="Histórico" WidthRequest="150" Clicked="Button_Clicked_3"
+                        FontAttributes="Bold" TextColor="White"/>
             </StackLayout>
             
             <StackLayout Spacing="15" Padding="10" Margin="5">
